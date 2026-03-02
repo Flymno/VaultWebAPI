@@ -1,10 +1,6 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Mvc;
-using Npgsql;
-using System.Security.Cryptography;
-using System.Text;
-using VaultWebAPI.Data.Queries;
-using VaultWebAPI.Utility;
+﻿using Microsoft.AspNetCore.Mvc;
+using VaultWebAPI.Data.Repositories;
+using VaultWebAPI.DTOs;
 
 namespace VaultWebAPI.Controllers
 {
@@ -12,35 +8,28 @@ namespace VaultWebAPI.Controllers
     [ApiController]
     public class UserManagement : ControllerBase
     {
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromServices] IConfiguration Config)
-        { 
-            string ConnectionString = Config.GetConnectionString("DefaultConnection");
-            using NpgsqlConnection Connection = new NpgsqlConnection(ConnectionString);
+        private readonly UserRepository _userRepository;
 
-            string Token = Guid.NewGuid().ToString();
-            string HashToken = Hashing.Hash(Token);
-
-            // INSERT INTO users VALUES (DEFAULT, HashToken)
-            await Connection.ExecuteAsync(SQLStatements.RegisterUser, new { Token = HashToken });
-
-            return Ok(Token);
+        public UserManagement(UserRepository userRepo)
+        {
+            _userRepository = userRepo;
         }
 
-        public class UserRequest { public string Token { get; set; } }
-        [HttpPost("remove")]
-        public async Task<IActionResult> Remove([FromBody] UserRequest Request, [FromServices] IConfiguration Config)
+        [HttpPost("register")]
+        public async Task<IActionResult> Register()
         {
-            string ConnectionString = Config.GetConnectionString("DefaultConnection");
-            using NpgsqlConnection Connection = new NpgsqlConnection(ConnectionString);
+            string? token = await _userRepository.CreateUser();
 
-            string Token = Request.Token;
-            string HashToken = Hashing.Hash(Token);
+            if (token == null) return StatusCode(500);
 
-            // DELETE FROM users WHERE access_token = HashToken
-            await Connection.ExecuteAsync(SQLStatements.RemoveUser, new { Token = HashToken });
+            return Ok(new { token });
+        }
 
-            return Ok();
+        [HttpPost("remove")]
+        public async Task<IActionResult> Remove([FromBody] UserRequest.UserRemoveRequest request)
+        {
+            if (await _userRepository.RemoveUserAsync(request.Token)) return Ok();
+            return StatusCode(500);
         }
     }
 }

@@ -1,10 +1,7 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Npgsql;
-using System.Runtime.CompilerServices;
-using VaultWebAPI.Data.Queries;
-using VaultWebAPI.Utility;
+﻿using Microsoft.AspNetCore.Mvc;
+using VaultWebAPI.Data.Repositories;
+using VaultWebAPI.Models;
+using VaultWebAPI.DTOs;
 
 namespace VaultWebAPI.Controllers
 {
@@ -12,29 +9,25 @@ namespace VaultWebAPI.Controllers
     [ApiController]
     public class Nodes : ControllerBase
     {
-        public class CreateRequest { public string Token { get; set; } public string Name { get; set; } }
-        public class QueryResultUser { public string user_id { get; set; } public string access_token { get; set; }}
+        private readonly UserRepository _userRepository;
+        private readonly NodeRepository _nodeRepository;
+
+        public Nodes(UserRepository userRepo, NodeRepository nodeRepo)
+        {
+            _userRepository = userRepo;
+            _nodeRepository = nodeRepo;
+        }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateNode([FromBody] CreateRequest Request, [FromServices] IConfiguration Config)
+        public async Task<IActionResult> CreateNode([FromBody] NodeRequest.NodeCreateRequest request)
         {
-            string ConnectionString = Config.GetConnectionString("DefaultConnection");
-            using NpgsqlConnection Connection = new NpgsqlConnection(ConnectionString);
+            User? currentUser = await _userRepository.GetByTokenAsync(request.Token);
+            if (currentUser == null) return Unauthorized("Invalid Access Token");
 
-            string HashToken = Hashing.Hash(Request.Token);
-
-            QueryResultUser CurrentUser;
-            try
-            {
-                 CurrentUser = Connection.Query<QueryResultUser>(SQLStatements.GetUser, new { Token = HashToken }).ToList()[0];
-            } catch
-            {
-                return Ok();
-            }
-
-            Console.WriteLine(CurrentUser.user_id);
-
-            return Ok();
+            Node? newNode = await _nodeRepository.CreateNodeAsync(currentUser.UserId, request.ParentId, request.Name);
+            if (newNode == null) return StatusCode(500, "Unable to Create Node");
+            
+            return Ok(newNode);
         }
     }
 }

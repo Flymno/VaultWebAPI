@@ -1,3 +1,5 @@
+using VaultWebAPI.Data.Repositories;
+
 namespace VaultWebAPI
 {
     public class Program
@@ -9,6 +11,8 @@ namespace VaultWebAPI
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddScoped<UserRepository>();
+            builder.Services.AddScoped<NodeRepository>();
 
             var app = builder.Build();
 
