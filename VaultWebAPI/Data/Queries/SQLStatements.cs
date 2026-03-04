@@ -41,7 +41,7 @@
             last_modified AS LastModified
             """;
 
-        public static string GetNodeTree =>
+        public static string GetUserNodes =>
             """
             SELECT
             node_id AS NodeId,
@@ -53,6 +53,7 @@
             date_created AS DateCreated,
             last_modified AS LastModified
             FROM nodes
+            WHERE user_id = @UserId
             """;
     }
 }

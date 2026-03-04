@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Npgsql;
+using System.Xml.Linq;
 using VaultWebAPI.Data.Queries;
 using VaultWebAPI.Models;
 
@@ -14,11 +15,9 @@ namespace VaultWebAPI.Data.Repositories
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<Node?> CreateNodeAsync(int userId, int? parentId, string name)
+        public async Task<Node?> CreateNodeAsync(int userId, int? parentId, string name, bool isCategory)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
-
-            bool isCategory = (parentId == null);
 
             try 
             {
@@ -27,6 +26,20 @@ namespace VaultWebAPI.Data.Repositories
             }
             catch (Exception ex)
             { Console.WriteLine(ex.Message); return null; }
+        }
+
+        public async Task<List<Node>?> GetAllUserNodesAsync(int userId)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+
+            try
+            {
+                IEnumerable<Node>? userNodes = await connection.QueryAsync<Node>(SQLStatements.GetUserNodes, new { UserId = userId});
+                return userNodes.ToList();
+            }
+            catch (Exception ex)
+            { Console.WriteLine(ex.Message); return null; }
+
         }
     }
 }

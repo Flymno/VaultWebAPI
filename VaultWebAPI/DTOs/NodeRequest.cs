@@ -2,6 +2,6 @@
 {
     public static class NodeRequest
     {
-        public record NodeCreateRequest(string Token, int? ParentId, string Name);
+        public record NodeCreateRequestDTO(string Token, int? ParentId, string Name);
     }
 }

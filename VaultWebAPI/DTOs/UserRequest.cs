@@ -2,6 +2,6 @@
 {
     public static class UserRequest
     {
-        public record UserRemoveRequest(string Token);
+        public record UserRemoveRequestDTO(string Token);
     }
 }

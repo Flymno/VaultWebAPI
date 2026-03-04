@@ -26,7 +26,7 @@ namespace VaultWebAPI.Controllers
         }
 
         [HttpPost("remove")]
-        public async Task<IActionResult> Remove([FromBody] UserRequest.UserRemoveRequest request)
+        public async Task<IActionResult> Remove([FromBody] UserRequest.UserRemoveRequestDTO request)
         {
             if (await _userRepository.RemoveUserAsync(request.Token)) return Ok();
             return StatusCode(500);

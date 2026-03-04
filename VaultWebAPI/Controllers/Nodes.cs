@@ -19,7 +19,7 @@ namespace VaultWebAPI.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateNode([FromBody] NodeRequest.NodeCreateRequest request)
+        public async Task<IActionResult> CreateNode([FromBody] NodeRequest.NodeCreateRequestDTO request)
         {
             User? currentUser = await _userRepository.GetByTokenAsync(request.Token);
             if (currentUser == null) return Unauthorized("Invalid Access Token");
