@@ -1,24 +1,26 @@
 ﻿using VaultWebAPI.Models;
 using Npgsql;
-using VaultWebAPI.Utility;
+using VaultWebAPI.Services;
 using Dapper;
 using VaultWebAPI.Data.Queries;
 
 namespace VaultWebAPI.Data.Repositories
 {
-    public class UserRepository
+    public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
+        private readonly IHashService _hashService;
 
-        public UserRepository(IConfiguration config)
+        public UserRepository(IConfiguration config, IHashService hashService)
         {
             _connectionString = config.GetConnectionString("DefaultConnection");
+            _hashService = hashService;
         }
 
         public async Task<User?> GetByTokenAsync(string token)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
-            string hashToken = Hashing.Hash(token);
+            string hashToken = _hashService.Hash(token);
 
             User? user = await connection.QueryFirstOrDefaultAsync<User>(SQLStatements.GetUser, new { Token = hashToken });
             if (user == null) { return null; }
@@ -31,7 +33,7 @@ namespace VaultWebAPI.Data.Repositories
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
 
             string token = Guid.NewGuid().ToString();
-            string hashToken = Hashing.Hash(token);
+            string hashToken = _hashService.Hash(token);
 
             try { await connection.ExecuteAsync(SQLStatements.RegisterUser, new { Token = hashToken }); }
             catch { return null; }
@@ -39,17 +41,16 @@ namespace VaultWebAPI.Data.Repositories
             return token;
         }
 
-        public async Task<bool> RemoveUserAsync(string token)
+        public async Task<int?> RemoveUserAsync(int userId)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
-            string hashToken = Hashing.Hash(token);
 
             try
             { 
-                int rowsAffected = await connection.ExecuteAsync(SQLStatements.RemoveUser, new { Token = hashToken }); 
-                return rowsAffected > 0;
+                int rowsAffected = await connection.ExecuteAsync(SQLStatements.RemoveUser, new { UserId = userId });
+                return rowsAffected > 0 ? userId : null;
             } 
-            catch { return false; }
+            catch { return null; }
         }
     }
 }

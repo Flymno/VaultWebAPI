@@ -1,4 +1,5 @@
 using VaultWebAPI.Data.Repositories;
+using VaultWebAPI.Services;
 
 namespace VaultWebAPI
 {
@@ -11,8 +12,13 @@ namespace VaultWebAPI
             // Add services to the container.
 
             builder.Services.AddControllers();
-            builder.Services.AddScoped<UserRepository>();
-            builder.Services.AddScoped<NodeRepository>();
+            builder.Services.AddHttpContextAccessor();
+
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<INodeRepository, NodeRepository>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<ITreeService, TreeService>();
+            builder.Services.AddScoped<IHashService, HashService>();
 
             var app = builder.Build();
 

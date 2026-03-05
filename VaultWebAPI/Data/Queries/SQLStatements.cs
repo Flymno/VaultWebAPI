@@ -13,7 +13,7 @@
         public static string RemoveUser =>
             """
             DELETE FROM users
-            WHERE access_token = @Token
+            WHERE user_id = @UserId
             """;
 
         public static string GetUser =>
@@ -26,7 +26,7 @@
 
         public static string CreateNode =>
             """
-            INSERT INTO Nodes
+            INSERT INTO nodes
             (user_id, parent_id, is_category, name)
             VALUES
             (@UserId, @ParentId, @IsCategory, @Name)
@@ -39,6 +39,12 @@
             content AS Content,
             date_created AS DateCreated,
             last_modified AS LastModified
+            """;
+
+        public static string DeleteNode =>
+            """
+            DELETE FROM nodes
+            WHERE user_id = @UserId AND node_id = @NodeId
             """;
 
         public static string GetUserNodes =>

@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using System.Security.Cryptography;
 
-namespace VaultWebAPI.Utility
+namespace VaultWebAPI.Services
 {
-    public class Hashing
+    public class HashService : IHashService
     {
-        public static string Hash(string Plain)
+        public string Hash(string Plain)
         {
             byte[] InBytes = Encoding.UTF8.GetBytes(Plain);
             byte[] HashBytes = SHA256.HashData(InBytes);

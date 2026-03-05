@@ -6,7 +6,7 @@ using VaultWebAPI.Models;
 
 namespace VaultWebAPI.Data.Repositories
 {
-    public class NodeRepository
+    public class NodeRepository : INodeRepository
     {
         private readonly string _connectionString;
 
@@ -39,7 +39,19 @@ namespace VaultWebAPI.Data.Repositories
             }
             catch (Exception ex)
             { Console.WriteLine(ex.Message); return null; }
+        }
 
+        public async Task<int?> DeleteNodeAsync(int userId, int nodeId)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+
+            try
+            {
+                int rowsAffected = await connection.ExecuteAsync(SQLStatements.DeleteNode, new { UserId = userId, NodeId = nodeId });
+                return rowsAffected > 0 ? nodeId : null;
+            }
+            catch (Exception ex)
+            { Console.WriteLine(ex.Message); return null; }
         }
     }
 }
