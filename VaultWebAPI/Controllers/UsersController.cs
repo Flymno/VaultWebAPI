@@ -2,17 +2,18 @@
 using VaultWebAPI.Data.Repositories;
 using VaultWebAPI.Models;
 using VaultWebAPI.Services;
+using VaultWebAPI.DTOs;
 
 namespace VaultWebAPI.Controllers
 {
     [Route("api/users")]
     [ApiController]
-    public class Users : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
         private readonly IAuthService _authService;
 
-        public Users(IUserRepository userRepo, IAuthService authService)
+        public UsersController(IUserRepository userRepo, IAuthService authService)
         {
             _userRepository = userRepo;
             _authService = authService;
@@ -21,21 +22,17 @@ namespace VaultWebAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register()
         {
-            string? token = await _userRepository.CreateUser();
+            string token = await _userRepository.CreateUser();
 
-            if (token == null) return StatusCode(500);
-
-            return Ok(new { token });
+            return Created("api/users", new CreatedUserResponseDTO(token));
         }
 
         [HttpDelete]
         public async Task<IActionResult> RemoveUser()
         {
-            User? currentUser = await _authService.GetAuthenticatedUserAsync();
-            if (currentUser == null) return Unauthorized();
+            User currentUser = await _authService.GetAuthenticatedUserAsync();
 
-            int? removedId = await _userRepository.RemoveUserAsync(currentUser.UserId);
-            if (removedId == null) return NotFound();
+            await _userRepository.RemoveUserAsync(currentUser.UserId);
 
             return NoContent();
         }

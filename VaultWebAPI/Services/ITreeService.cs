@@ -5,6 +5,6 @@ namespace VaultWebAPI.Services
 {
     public interface ITreeService
     {
-        List<NodeResponse.NodeTreeDTO> BuildNodeTree(List<Node> flatNodes);
+        List<NodeTreeDTO> BuildNodeTree(List<Node> flatNodes);
     }
 }

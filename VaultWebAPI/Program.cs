@@ -1,4 +1,5 @@
 using VaultWebAPI.Data.Repositories;
+using VaultWebAPI.Exceptions;
 using VaultWebAPI.Services;
 
 namespace VaultWebAPI
@@ -14,6 +15,9 @@ namespace VaultWebAPI
             builder.Services.AddControllers();
             builder.Services.AddHttpContextAccessor();
 
+            builder.Services.AddExceptionHandler<VaultExceptionHandler>();
+            builder.Services.AddProblemDetails();
+
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<INodeRepository, NodeRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
@@ -22,12 +26,11 @@ namespace VaultWebAPI
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.UseExceptionHandler();
 
+            // Configure the HTTP request pipeline
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();

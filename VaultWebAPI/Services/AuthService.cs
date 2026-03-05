@@ -1,4 +1,5 @@
 ﻿using VaultWebAPI.Data.Repositories;
+using VaultWebAPI.Exceptions;
 using VaultWebAPI.Models;
 
 namespace VaultWebAPI.Services
@@ -14,16 +15,16 @@ namespace VaultWebAPI.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User?> GetAuthenticatedUserAsync()
+        public async Task<User> GetAuthenticatedUserAsync()
         {
             HttpRequest? context = _contextAccessor.HttpContext?.Request;
-            if (context == null) return null;
+            if (context == null) throw new UnauthorizedVaultException();
 
             string? token = context.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            if (token == null) return null;
+            if (token == null) throw new UnauthorizedVaultException();
 
             User? currentUser = await _userRepository.GetByTokenAsync(token);
-            if (currentUser == null) return null;
+            if (currentUser == null) throw new UnauthorizedVaultException();
 
             return currentUser;
         }

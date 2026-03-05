@@ -2,6 +2,7 @@
 using Npgsql;
 using System.Xml.Linq;
 using VaultWebAPI.Data.Queries;
+using VaultWebAPI.Exceptions;
 using VaultWebAPI.Models;
 
 namespace VaultWebAPI.Data.Repositories
@@ -15,43 +16,28 @@ namespace VaultWebAPI.Data.Repositories
             _connectionString = config.GetConnectionString("DefaultConnection");
         }
 
-        public async Task<Node?> CreateNodeAsync(int userId, int? parentId, string name, bool isCategory)
+        public async Task<Node> CreateNodeAsync(int userId, int? parentId, string name, bool isCategory)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
 
-            try 
-            {
-                Node newNode = await connection.QuerySingleAsync<Node>(SQLStatements.CreateNode, new { UserId = userId, ParentId = parentId, IsCategory = isCategory, Name = name });
-                return newNode;
-            }
-            catch (Exception ex)
-            { Console.WriteLine(ex.Message); return null; }
+            Node newNode = await connection.QuerySingleAsync<Node>(SQLStatements.CreateNode, new { UserId = userId, ParentId = parentId, IsCategory = isCategory, Name = name });
+            return newNode;
         }
 
-        public async Task<List<Node>?> GetAllUserNodesAsync(int userId)
+        public async Task<List<Node>> GetAllUserNodesAsync(int userId)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
 
-            try
-            {
-                IEnumerable<Node>? userNodes = await connection.QueryAsync<Node>(SQLStatements.GetUserNodes, new { UserId = userId});
-                return userNodes.ToList();
-            }
-            catch (Exception ex)
-            { Console.WriteLine(ex.Message); return null; }
+            IEnumerable<Node> userNodes = await connection.QueryAsync<Node>(SQLStatements.GetUserNodes, new { UserId = userId});
+            return userNodes.ToList();
         }
 
-        public async Task<int?> DeleteNodeAsync(int userId, int nodeId)
+        public async Task DeleteNodeAsync(int userId, int nodeId)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
 
-            try
-            {
-                int rowsAffected = await connection.ExecuteAsync(SQLStatements.DeleteNode, new { UserId = userId, NodeId = nodeId });
-                return rowsAffected > 0 ? nodeId : null;
-            }
-            catch (Exception ex)
-            { Console.WriteLine(ex.Message); return null; }
+            int rowsAffected = await connection.ExecuteAsync(SQLStatements.DeleteNode, new { UserId = userId, NodeId = nodeId });
+            if (rowsAffected == 0) throw new NotFoundVaultException($"Node: {nodeId} not found or unauthorized");
         }
     }
 }

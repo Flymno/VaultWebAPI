@@ -5,9 +5,9 @@ namespace VaultWebAPI.Services
 {
     public class TreeService : ITreeService
     {
-        public List<NodeResponse.NodeTreeDTO> BuildNodeTree(List<Node> flatNodes)
+        public List<NodeTreeDTO> BuildNodeTree(List<Node> flatNodes)
         {
-            Dictionary<int, NodeResponse.NodeTreeDTO> treeMap = flatNodes.Select(r => new NodeResponse.NodeTreeDTO
+            Dictionary<int, NodeTreeDTO> treeMap = flatNodes.Select(r => new NodeTreeDTO
             (
                 r.NodeId,
                 r.ParentId,
@@ -16,14 +16,14 @@ namespace VaultWebAPI.Services
                 r.Content,
                 r.DateCreated,
                 r.LastModified,
-                new List<NodeResponse.NodeTreeDTO>()
+                new List<NodeTreeDTO>()
             )).ToDictionary(t => t.NodeId);
 
-            List<NodeResponse.NodeTreeDTO> nodeTreeRoots = new List<NodeResponse.NodeTreeDTO>();
+            List<NodeTreeDTO> nodeTreeRoots = new List<NodeTreeDTO>();
 
-            foreach (NodeResponse.NodeTreeDTO node in treeMap.Values)
+            foreach (NodeTreeDTO node in treeMap.Values)
             {
-                if (node.ParentId.HasValue && treeMap.TryGetValue(node.ParentId.Value, out NodeResponse.NodeTreeDTO? parent))
+                if (node.ParentId.HasValue && treeMap.TryGetValue(node.ParentId.Value, out NodeTreeDTO? parent))
                 {
                     parent.Children.Add(node);
                 } else
