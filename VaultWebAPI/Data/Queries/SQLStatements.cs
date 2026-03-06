@@ -41,6 +41,31 @@
             last_modified AS LastModified
             """;
 
+        public static string UpdateNode =>
+            """
+            UPDATE nodes
+            SET 
+            parent_id = @ParentId, 
+            name = @Name,
+            content = @Content, 
+            last_modified = @LastModified
+            WHERE 
+            node_id = @NodeId
+            AND user_id = @UserId
+            AND (@ParentId IS NULL OR EXISTS (
+                SELECT 1 FROM nodes WHERE node_id = @ParentId AND user_id = @UserId
+            ))
+            RETURNING 
+            node_id AS NodeId,
+            user_id AS UserId,
+            parent_id AS ParentId,
+            is_category AS IsCategory,
+            name AS Name,
+            content AS Content,
+            date_created AS DateCreated,
+            last_modified AS LastModified
+            """;
+
         public static string DeleteNode =>
             """
             DELETE FROM nodes

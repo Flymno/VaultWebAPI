@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Npgsql;
+using System.Data;
 using System.Xml.Linq;
 using VaultWebAPI.Data.Queries;
 using VaultWebAPI.Exceptions;
@@ -22,6 +23,17 @@ namespace VaultWebAPI.Data.Repositories
 
             Node newNode = await connection.QuerySingleAsync<Node>(SQLStatements.CreateNode, new { UserId = userId, ParentId = parentId, IsCategory = isCategory, Name = name });
             return newNode;
+        }
+
+        public async Task<Node> UpdateNodeAsync(int userId, int nodeId, int? parentId, string name, string? content)
+        {
+            using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+
+            Node? updatedNode = await connection.QuerySingleOrDefaultAsync<Node>(SQLStatements.UpdateNode, new { NodeId = nodeId, UserId = userId, ParentId = parentId, Name = name, Content = content, LastModified = DateTime.Now });
+            if (updatedNode == null) throw new NotFoundVaultException("Unable to update node. Check if node exists and that you have correct permissions.");
+
+            return updatedNode;
+
         }
 
         public async Task<List<Node>> GetAllUserNodesAsync(int userId)

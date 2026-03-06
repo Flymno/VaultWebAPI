@@ -42,7 +42,7 @@ namespace VaultWebAPI.Controllers
             return Created($"/api/nodes/{node.NodeId}", newNode);
         }
 
-        [HttpGet("getUserTree")]
+        [HttpGet]
         public async Task<IActionResult> GetUserNodeTree()
         {
             User currentUser = await _authService.GetAuthenticatedUserAsync();
@@ -62,6 +62,27 @@ namespace VaultWebAPI.Controllers
             await _nodeRepository.DeleteNodeAsync(currentUser.UserId, nodeId);
 
             return NoContent();
+        }
+
+        [HttpPut("{nodeId}")]
+        public async Task<IActionResult> UpdateNoder(int nodeId, [FromBody] NodeUpdateRequestDTO request)
+        {
+            User currentUser = await _authService.GetAuthenticatedUserAsync();
+
+            Node node = await _nodeRepository.UpdateNodeAsync(currentUser.UserId, nodeId, request.ParentId, request.Name, request.Content);
+
+            NodeTreeDTO newNode = new NodeTreeDTO(
+                node.NodeId,
+                node.ParentId,
+                node.IsCategory,
+                node.Name,
+                node.Content,
+                node.DateCreated,
+                node.LastModified,
+                new List<NodeTreeDTO>()
+            );
+
+            return Ok(newNode);
         }
     }
 }
