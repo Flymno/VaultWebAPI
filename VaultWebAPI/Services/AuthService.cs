@@ -23,10 +23,8 @@ namespace VaultWebAPI.Services
             string? token = context.Headers["Authorization"].ToString().Replace("Bearer ", "");
             if (token == null) throw new UnauthorizedVaultException();
 
-            User? currentUser = await _userRepository.GetByTokenAsync(token);
-            if (currentUser == null) throw new UnauthorizedVaultException();
-
-            return currentUser;
+            try { return await _userRepository.GetByTokenAsync(token); }
+            catch (NotFoundVaultException) { throw new UnauthorizedVaultException(); }
         }
     }
 }
