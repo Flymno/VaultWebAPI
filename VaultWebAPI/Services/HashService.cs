@@ -5,13 +5,18 @@ namespace VaultWebAPI.Services
 {
     public class HashService : IHashService
     {
-        public string Hash(string Plain)
+        public string GetAuthHash(string rawToken)
         {
-            byte[] InBytes = Encoding.UTF8.GetBytes(Plain);
-            byte[] HashBytes = SHA256.HashData(InBytes);
-            string HashResult = Convert.ToHexString(HashBytes);
+            byte[] InBytes = Encoding.UTF8.GetBytes(rawToken);
+            byte[] HashBytes = SHA512.HashData(InBytes);
+            
+            return Convert.ToHexString(HashBytes);
+        }
 
-            return HashResult;
+        public byte[] GetEncryptionKey(string rawToken)
+        {
+            byte[] InBytes = Encoding.UTF8.GetBytes(rawToken);
+            return SHA256.HashData(InBytes);
         }
     }
 }

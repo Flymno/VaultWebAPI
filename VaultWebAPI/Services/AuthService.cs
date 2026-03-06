@@ -17,14 +17,21 @@ namespace VaultWebAPI.Services
 
         public async Task<User> GetAuthenticatedUserAsync()
         {
+            string token = GetRawToken();
+
+            try { return await _userRepository.GetByTokenAsync(token); }
+            catch (NotFoundVaultException) { throw new UnauthorizedVaultException(); }
+        }
+
+        public string GetRawToken()
+        {
             HttpRequest? context = _contextAccessor.HttpContext?.Request;
             if (context == null) throw new UnauthorizedVaultException();
 
             string? token = context.Headers["Authorization"].ToString().Replace("Bearer ", "");
             if (token == null) throw new UnauthorizedVaultException();
 
-            try { return await _userRepository.GetByTokenAsync(token); }
-            catch (NotFoundVaultException) { throw new UnauthorizedVaultException(); }
+            return token;
         }
     }
 }

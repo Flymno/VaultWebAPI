@@ -21,7 +21,7 @@ namespace VaultWebAPI.Data.Repositories
         public async Task<User> GetByTokenAsync(string token)
         {
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
-            string hashToken = _hashService.Hash(token);
+            string hashToken = _hashService.GetAuthHash(token);
 
             User? user = await connection.QueryFirstOrDefaultAsync<User>(SQLStatements.GetUser, new { Token = hashToken });
             if (user == null) throw new NotFoundVaultException("The user could not be found");
@@ -34,7 +34,7 @@ namespace VaultWebAPI.Data.Repositories
             using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
 
             string token = Guid.NewGuid().ToString();
-            string hashToken = _hashService.Hash(token);
+            string hashToken = _hashService.GetAuthHash(token);
 
             await connection.ExecuteAsync(SQLStatements.RegisterUser, new { Token = hashToken });
 

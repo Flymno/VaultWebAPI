@@ -2,6 +2,7 @@
 {
     public class SQLStatements
     {
+        #region Users
         public static string RegisterUser =>
             """
             INSERT INTO users
@@ -23,7 +24,9 @@
             FROM users
             WHERE access_token = @Token
             """;
+        #endregion
 
+        #region Nodes
         public static string CreateNode =>
             """
             INSERT INTO nodes
@@ -52,7 +55,7 @@
             parent_id = @ParentId, 
             name = @Name,
             content = @Content, 
-            last_modified = @LastModified
+            last_modified = CURRENT_TIMESTAMP
             WHERE 
             node_id = @NodeId
             AND user_id = @UserId
@@ -90,5 +93,10 @@
             FROM nodes
             WHERE user_id = @UserId
             """;
+        #endregion
+
+        #region Tags
+
+        #endregion
     }
 }

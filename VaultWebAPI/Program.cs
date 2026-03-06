@@ -21,8 +21,9 @@ namespace VaultWebAPI
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<INodeRepository, NodeRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<ITreeService, TreeService>();
             builder.Services.AddScoped<IHashService, HashService>();
+            builder.Services.AddScoped<ITreeService, TreeService>();
+            builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 
             var app = builder.Build();
 

@@ -2,6 +2,8 @@
 {
     public interface IHashService
     {
-        string Hash(string Plain);
+        string GetAuthHash(string rawToken);
+
+        byte[] GetEncryptionKey(string rawToken);
     }
 }
