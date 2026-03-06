@@ -28,8 +28,12 @@
             """
             INSERT INTO nodes
             (user_id, parent_id, is_category, name)
-            VALUES
-            (@UserId, @ParentId, @IsCategory, @Name)
+            SELECT @UserId, @ParentId, @IsCategory, @Name
+            WHERE (@ParentId IS NULL OR EXISTS (
+                SELECT 1 FROM nodes 
+                WHERE node_id = @ParentId 
+                AND user_id = @UserId
+            ))
             RETURNING 
             node_id AS NodeId,
             user_id AS UserId,
