@@ -65,7 +65,7 @@ namespace VaultWebAPI.Controllers
         }
 
         [HttpPut("{nodeId}")]
-        public async Task<IActionResult> UpdateNoder(int nodeId, [FromBody] NodeUpdateRequestDTO request)
+        public async Task<IActionResult> UpdateNode(int nodeId, [FromBody] NodeUpdateRequestDTO request)
         {
             User currentUser = await _authService.GetAuthenticatedUserAsync();
 
