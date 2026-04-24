@@ -96,7 +96,18 @@
         #endregion
 
         #region Tags
-
+        public static string CreateTag =>
+            """
+            INSERT INTO tags
+            (user_id, name, color)
+            VALUES
+            (@UserId, @Name, @Color)
+            RETURNING
+            tag_id AS TagId
+            user_id AS UserId
+            name AS Name
+            color AS Color
+            """;
         #endregion
     }
 }

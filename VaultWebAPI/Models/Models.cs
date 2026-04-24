@@ -14,4 +14,10 @@
         string? Content, 
         DateTime DateCreated,
         DateTime LastModified);
+
+    public record Tag(
+        int TagId,
+        int UserId,
+        string Name,
+        string Color);
 }
